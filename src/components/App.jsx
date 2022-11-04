@@ -24,8 +24,7 @@ export class App extends Component {
     if (prevState.query !== query) {
       this.setState({ gallery: [] });
     }
-
-    if (prevState.page !== page || prevState.gallery === gallery) {
+    if (prevState.page !== page || prevState.query !== query) {
       try {
         const gallery = await API.getQuery(query, page);
         if (gallery) {
@@ -52,7 +51,6 @@ export class App extends Component {
       page: prevState.page + 1,
     }));
   };
-  git;
 
   getUrlForModal = (url, tags) => {
     this.setState({
