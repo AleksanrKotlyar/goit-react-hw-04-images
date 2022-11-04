@@ -80,7 +80,7 @@ export class App extends Component {
         )}
         <Searchbar onSubmit={this.onSubmit} />
         {status === 'idle' && <Idle />}
-        {status === 'pending' && <Loader />}
+        {status === 'idle' && <Loader />}
         {status === 'rejected' && <Rejected />}
         {status === 'resolved' && gallery.length === 0 && (
           <ResolvedNoData query={query} />
