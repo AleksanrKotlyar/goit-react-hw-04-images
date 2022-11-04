@@ -18,7 +18,7 @@ export const ModalWindow = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: calc(100vw - 96px);
-  max-height: calc(100vh - 48px);
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 24px);
   width: 100%;
 `;
