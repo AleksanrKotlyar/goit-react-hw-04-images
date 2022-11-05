@@ -17,19 +17,30 @@ export class App extends Component {
     error: null,
     largeImageURL: null,
     tags: null,
+    totalHits: 0,
   };
 
   async componentDidUpdate(_, prevState) {
     const { query, page } = this.state;
-    if (prevState.query !== query) {
-      this.setState({ gallery: [] });
-    }
+    // if (prevState.query !== query) {
+    //   this.setState({ gallery: [] });
+    // }
+
     if (prevState.page !== page || prevState.query !== query) {
       try {
         const gallery = await API.getQuery(query, page);
+        console.log(gallery);
         if (gallery) {
           this.setState(prevState => ({
-            gallery: [...prevState.gallery, ...gallery],
+            gallery:
+              page === 1
+                ? gallery.hits
+                : [...prevState.gallery, ...gallery.hits],
+            totalHits:
+              page === 1
+                ? gallery.totalHits - gallery.hits.length
+                : gallery.totalHits -
+                  [...prevState.gallery, ...gallery.hits].length,
             status: 'resolved',
           }));
         }
@@ -37,6 +48,10 @@ export class App extends Component {
         this.setState({
           error,
           status: 'rejected',
+        });
+      } finally {
+        this.setState({
+          status: 'resolved',
         });
       }
     }
@@ -67,7 +82,8 @@ export class App extends Component {
   };
 
   render() {
-    const { gallery, status, largeImageURL, tags, query } = this.state;
+    const { gallery, status, largeImageURL, tags, query, totalHits } =
+      this.state;
     return (
       <Wrapper>
         {largeImageURL && (
@@ -90,9 +106,9 @@ export class App extends Component {
               data={gallery}
               getUrlForModal={this.getUrlForModal}
             />
-            <Button handleLoadMore={this.handleLoadMore} />
           </>
         )}
+        {!!totalHits && <Button handleLoadMore={this.handleLoadMore} />}
       </Wrapper>
     );
   }

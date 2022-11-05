@@ -16,7 +16,7 @@ export async function getQuery(query, page) {
       },
     });
 
-    return response.data.hits;
+    return response.data;
   } catch (error) {
     console.error(error);
   }
