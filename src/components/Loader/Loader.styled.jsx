@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { RotatingLines } from 'react-loader-spinner';
 
-export const LoaderRotatingLines = styled(RotatingLines)`
+export const LoaderRotatingLines = styled.div`
   margin-top: 100px;
   margin-left: auto;
   margin-right: auto;
