@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
-import * as API from './Api/Api';
+import * as API from '../Api/Api';
 import { ImageGalleryList } from './ImageGallery/ImageGallery';
 import { Wrapper } from './App.styled';
 import { Button } from './Button/Button';
