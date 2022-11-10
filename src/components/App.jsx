@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import * as API from '../Api/Api';
 import { ImageGalleryList } from './ImageGallery/ImageGallery';
@@ -8,108 +8,86 @@ import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 import { Idle, Rejected, ResolvedNoData } from './Notifications/Notifications';
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    gallery: [],
-    status: 'idle',
-    error: null,
-    largeImageURL: null,
-    tags: null,
-    totalHits: 0,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState('1');
+  const [gallery, setGallery] = useState([]);
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState(null);
+  const [largeImageURL, setLargeImageURL] = useState(null);
+  const [tags, setTags] = useState(null);
+  const [totalHits, setTotalHits] = useState(0);
 
-  async componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
-    // if (prevState.query !== query) {
-    //   this.setState({ gallery: [] });
-    // }
+  useEffect(() => {
+    if (query) {
+      async function fetchData() {
+        try {
+          const gallery = await API.getQuery(query, page);
 
-    if (prevState.page !== page || prevState.query !== query) {
-      try {
-        const gallery = await API.getQuery(query, page);
-        console.log(gallery);
-        if (gallery) {
-          this.setState(prevState => ({
-            gallery:
-              page === 1
-                ? gallery.hits
-                : [...prevState.gallery, ...gallery.hits],
-            totalHits:
+          if (gallery) {
+            setGallery(prevState =>
+              page === 1 ? gallery.hits : [...prevState, ...gallery.hits]
+            );
+            setTotalHits(
               page === 1
                 ? gallery.totalHits - gallery.hits.length
-                : gallery.totalHits -
-                  [...prevState.gallery, ...gallery.hits].length,
-            status: 'resolved',
-          }));
+                : gallery.totalHits - [...gallery, ...gallery.hits].length
+            );
+            setStatus('resolved');
+          }
+        } catch (error) {
+          setError(error);
+          setStatus('rejected');
+        } finally {
+          setStatus('resolved');
         }
-      } catch (error) {
-        this.setState({
-          error,
-          status: 'rejected',
-        });
-      } finally {
-        this.setState({
-          status: 'resolved',
-        });
       }
+      fetchData();
     }
-  }
+  }, [page, query]);
 
-  onSubmit = async query => {
-    this.setState({ query, page: 1, status: 'pending' });
+  const onSubmit = async query => {
+    setQuery(query);
+    setPage(1);
+    setStatus('pending');
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const handleLoadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  getUrlForModal = (url, tags) => {
-    this.setState({
-      largeImageURL: url,
-      tags,
-    });
+  const getUrlForModal = (url, tags) => {
+    setLargeImageURL(url);
+    setTags(tags);
   };
 
-  removeUrlForModal = () => {
-    this.setState({
-      largeImageURL: null,
-      tags: null,
-    });
+  const removeUrlForModal = () => {
+    setLargeImageURL(null);
+    setTags(null);
   };
 
-  render() {
-    const { gallery, status, largeImageURL, tags, query, totalHits } =
-      this.state;
-    return (
-      <Wrapper>
-        {largeImageURL && (
-          <Modal
-            url={largeImageURL}
-            tags={tags}
-            removeUrlForModal={this.removeUrlForModal}
-          />
-        )}
-        <Searchbar onSubmit={this.onSubmit} />
-        {status === 'idle' && <Idle />}
-        {status === 'pending' && <Loader />}
-        {status === 'rejected' && <Rejected />}
-        {status === 'resolved' && gallery.length === 0 && (
-          <ResolvedNoData query={query} />
-        )}
-        {status === 'resolved' && gallery.length > 0 && (
-          <>
-            <ImageGalleryList
-              data={gallery}
-              getUrlForModal={this.getUrlForModal}
-            />
-          </>
-        )}
-        {!!totalHits && <Button handleLoadMore={this.handleLoadMore} />}
-      </Wrapper>
-    );
-  }
-}
+  return (
+    <Wrapper>
+      {largeImageURL && (
+        <Modal
+          url={largeImageURL}
+          tags={tags}
+          removeUrlForModal={removeUrlForModal}
+        />
+      )}
+      <Searchbar onSubmit={onSubmit} />
+      {status === 'idle' && <Idle />}
+      {status === 'pending' && <Loader />}
+      {status === 'rejected' && <Rejected error={error} />}
+      {status === 'resolved' && gallery.length === 0 && (
+        <ResolvedNoData query={query} />
+      )}
+      {status === 'resolved' && gallery.length > 0 && (
+        <>
+          <ImageGalleryList data={gallery} getUrlForModal={getUrlForModal} />
+        </>
+      )}
+      {!!totalHits && <Button handleLoadMore={handleLoadMore} />}
+    </Wrapper>
+  );
+};

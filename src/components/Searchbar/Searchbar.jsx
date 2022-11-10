@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import { FcSearch } from 'react-icons/fc';
-import { Component } from 'react';
+import { useState } from 'react';
 import {
   Header,
   SearchForm,
@@ -9,16 +10,15 @@ import {
 } from './Searchbar.styled';
 import toast, { Toaster } from 'react-hot-toast';
 
-export class Searchbar extends Component {
-  state = {
-    query: '',
+export const Searchbar = ({ onSubmit }) => {
+  const [query, setQuery] = useState('');
+
+  // useEffect(() => {});
+  const handleOnChange = ({ target: { value } }) => {
+    setQuery(value);
   };
 
-  handleOnChange = ({ target: { value } }) => {
-    this.setState({ query: value });
-  };
-
-  handleOnSubmit = e => {
+  const handleOnSubmit = e => {
     e.preventDefault();
 
     const query = e.currentTarget.elements.input.value;
@@ -31,30 +31,32 @@ export class Searchbar extends Component {
       });
     }
 
-    this.props.onSubmit(query);
+    onSubmit(query);
     // e.currentTarget.reset();
   };
 
-  render() {
-    return (
-      <Header>
-        <SearchForm onSubmit={this.handleOnSubmit}>
-          <SearchFormButton type="submit">
-            <FcSearch />
-            <SearchFormButtonLabel>Search</SearchFormButtonLabel>
-          </SearchFormButton>
-          <Toaster />
-          <SearchFormInput
-            name="input"
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            value={this.state.query}
-            onChange={this.handleOnChange}
-          />
-        </SearchForm>
-      </Header>
-    );
-  }
-}
+  return (
+    <Header>
+      <SearchForm onSubmit={handleOnSubmit}>
+        <SearchFormButton type="submit">
+          <FcSearch />
+          <SearchFormButtonLabel>Search</SearchFormButtonLabel>
+        </SearchFormButton>
+        <Toaster />
+        <SearchFormInput
+          name="input"
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          value={query}
+          onChange={handleOnChange}
+        />
+      </SearchForm>
+    </Header>
+  );
+};
+
+Searchbar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

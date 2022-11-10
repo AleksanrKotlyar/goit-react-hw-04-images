@@ -1,4 +1,5 @@
 import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
+import PropTypes from 'prop-types';
 
 export const ImageGalleryItem = ({
   inf: { webformatURL, tags, largeImageURL },
@@ -13,4 +14,9 @@ export const ImageGalleryItem = ({
       />
     </GalleryItem>
   );
+};
+
+ImageGalleryItem.propTypes = {
+  inf: PropTypes.object.isRequired,
+  getUrlForModal: PropTypes.func.isRequired,
 };
