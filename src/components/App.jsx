@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import * as API from '../Api/Api';
 import { ImageGalleryList } from './ImageGallery/ImageGallery';
@@ -7,6 +7,8 @@ import { Button } from './Button/Button';
 import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 import { Idle, Rejected, ResolvedNoData } from './Notifications/Notifications';
+
+export const MyContext = createContext();
 
 export const App = () => {
   const [query, setQuery] = useState('');
@@ -68,26 +70,29 @@ export const App = () => {
 
   return (
     <Wrapper>
-      {largeImageURL && (
-        <Modal
-          url={largeImageURL}
-          tags={tags}
-          removeUrlForModal={removeUrlForModal}
-        />
-      )}
-      <Searchbar onSubmit={onSubmit} />
-      {status === 'idle' && <Idle />}
-      {status === 'pending' && <Loader />}
-      {status === 'rejected' && <Rejected error={error} />}
-      {status === 'resolved' && gallery.length === 0 && (
-        <ResolvedNoData query={query} />
-      )}
-      {status === 'resolved' && gallery.length > 0 && (
-        <>
-          <ImageGalleryList data={gallery} getUrlForModal={getUrlForModal} />
-        </>
-      )}
-      {!!totalHits && <Button handleLoadMore={handleLoadMore} />}
+      <MyContext.Provider value={getUrlForModal}>
+        {largeImageURL && (
+          <Modal
+            url={largeImageURL}
+            tags={tags}
+            removeUrlForModal={removeUrlForModal}
+          />
+        )}
+        <Searchbar onSubmit={onSubmit} />
+        {status === 'idle' && <Idle />}
+        {status === 'pending' && <Loader />}
+        {status === 'rejected' && <Rejected error={error} />}
+        {status === 'resolved' && gallery.length === 0 && (
+          <ResolvedNoData query={query} />
+        )}
+        {status === 'resolved' && gallery.length > 0 && (
+          <>
+            <ImageGalleryList data={gallery} />
+            {/* <ImageGalleryList data={gallery} getUrlForModal={getUrlForModal} /> */}
+          </>
+        )}
+        {!!totalHits && <Button handleLoadMore={handleLoadMore} />}
+      </MyContext.Provider>
     </Wrapper>
   );
 };

@@ -14,6 +14,15 @@ export const Searchbar = ({ onSubmit }) => {
   const [query, setQuery] = useState('');
 
   // useEffect(() => {});
+
+  //  const handleOnChange = useCallback(
+  //    () =>
+  //      ({ target: { value } }) => {
+  //        setQuery(value);
+  //      },
+  //    []
+  //  );
+
   const handleOnChange = ({ target: { value } }) => {
     setQuery(value);
   };
